@@ -1,0 +1,85 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#define int long long
+
+#ifndef ONLINE_JUDGE
+#include "algo/debug.h"
+#define debug(x...) cerr << "[" << #x << "] = ["; _print(x)
+#else
+#define debug(x...)
+#endif
+
+/*
+Normal dp, with checks.
+*/
+const int LOGN = 22;
+void solve() {
+    int n, q;
+    cin >> n >> q;
+    vector<vector<int>> g(n);
+    for(int i = 0, x; i + 1 < n; i++) {
+        cin >> x;
+        x--;
+        g[i + 1].push_back(x);
+        g[x].push_back(i + 1);
+    }
+
+    vector<vector<int>> dp(n, vector<int>(LOGN, -1));
+    function<void(int, int)> dfs=[&](int node, int p) {
+        dp[node][0] = p;
+        for(int i = 1; i < LOGN; i++) {
+            int p1 = dp[node][i-1];
+            if(p1 != -1) {
+                dp[node][i] = dp[p1][i-1];
+            }
+        }
+
+        for(auto ch: g[node]) {
+            if(ch ^ p) {
+                dfs(ch, node);
+            }
+        }
+    };
+
+    dfs(0, -1);
+
+    auto ancestor=[&](int node, int k) {
+        int cur = node;
+        for(int i = 0; i < LOGN; i++) {
+            if(k & 1ll<<i) {
+                cur = dp[cur][i];
+            }
+
+            if(cur == -1) {
+                return (int)-1;
+            }
+        }
+        return cur + 1;
+    };
+
+    while(q--) {
+        int node, k;
+        cin >> node >> k;
+        node--;
+        cout << ancestor(node, k) << '\n';
+    }
+}
+
+signed main() {
+#ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#else
+#endif
+    ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+    int t = 1;
+    //cin >> t;
+
+    while (t--) {
+        solve();
+    }
+
+    // cerr << "Time elapsed: " << ((long double)clock() / CLOCKS_PER_SEC) << " s.\n";
+}
