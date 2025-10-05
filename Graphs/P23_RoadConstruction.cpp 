@@ -1,0 +1,89 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define int long long
+
+#ifndef ONLINE_JUDGE
+#include "algo/debug.h"
+#define debug(x...) cerr << "[" << #x << "] = ["; _print(x)
+#else
+#define debug(x...)
+#endif
+struct dsu {
+public:
+    dsu(int n) {
+        _n = n;
+        par.assign(n, 0);
+        sz.assign(n, 1);
+        for(int i = 0; i < n; i++) {
+            par[i] = i;
+        }
+    }
+    int find(int a) {
+        if(par[a] == a) {
+            return a;
+        }
+        return par[a] = find(par[a]); // path compressions
+    }
+
+    void merge(int a, int b) {
+        a = par[a], b = par[b];
+        if(a == b) {
+            return;
+        }
+
+        if(sz[a] < sz[b]) {
+            swap(a, b);
+        }
+
+        sz[a] += sz[b];
+        par[b] = a;
+    }
+
+    bool same(int a, int b) {
+        return find(a) == find(b);
+    }
+
+    int size(int a) {
+        return sz[find(a)];
+    }
+private:
+    int _n;
+    vector<int> par, sz;
+};
+
+void solve() {
+    int n, m;
+    cin >> n >> m;
+    
+    int cnt = n, mx = 1;
+    dsu ds(n);
+    for(int i = 0, a, b; i < m; i++) {
+        cin >> a >> b; a--, b--;
+        if(ds.same(a, b)) {
+        } else {
+            ds.merge(a, b);
+            cnt--;
+            mx = max(mx, ds.size(a));
+        }
+        cout << cnt << " " << mx << '\n';
+    }
+}
+
+signed main() {
+#ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#else
+#endif
+    ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+    int t = 1;
+    //cin >> t;
+
+    while (t--) {
+        solve();
+    }
+
+    // cerr << "Time elapsed: " << ((long double)clock() / CLOCKS_PER_SEC) << " s.\n";
+}
